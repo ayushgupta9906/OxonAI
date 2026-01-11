@@ -1,0 +1,15 @@
+# dependencies
+/node_modules
+node_modules/
+IDE/node_modules/
+# vercel
+.vercel
+
+
+dist/
+IDE/dist/
+win-unpacked/
+*.exe
+IDE/dist/
+*.exe
+write-env.js

@@ -1,0 +1,85 @@
+{
+    "name": "oxonai-ide",
+    "version": "1.0.0",
+    "author": "OxonAI Team",
+    "description": "OxonAI IDE - AI-powered development environment",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "dev": "concurrently \"npm run dev:react\" \"wait-on tcp:5173 && electron .\"",
+        "dev:react": "vite --port 5173 --strictPort",
+        "build:react": "vite build",
+        "build": "npm run build:react && electron-builder",
+        "build:win": "npm run build:react && electron-builder --win",
+        "build:mac": "npm run build:react && electron-builder --mac",
+        "build:linux": "npm run build:react && electron-builder --linux"
+    },
+    "build": {
+        "appId": "com.oxonai.ide",
+        "productName": "OxonAI IDE",
+        "directories": {
+            "output": "dist",
+            "buildResources": "assets"
+        },
+        "files": [
+            "main.js",
+            "preload.js",
+            "build/**/*"
+        ],
+        "win": {
+            "target": [
+                {
+                    "target": "portable",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ]
+        },
+        "mac": {
+            "target": [
+                "dmg"
+            ],
+            "category": "public.app-category.developer-tools"
+        },
+        "linux": {
+            "target": [
+                "AppImage"
+            ],
+            "category": "Development"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true,
+            "shortcutName": "OxonAI IDE"
+        }
+    },
+    "dependencies": {
+        "@monaco-editor/react": "^4.7.0",
+        "@xterm/xterm": "^6.0.0",
+        "electron-store": "^8.1.0",
+        "openai": "^4.20.0",
+        "simple-git": "^3.30.0",
+        "xterm": "^5.3.0",
+        "xterm-addon-fit": "^0.8.0"
+    },
+    "devDependencies": {
+        "@types/react": "^18.2.0",
+        "@types/react-dom": "^18.2.0",
+        "@vitejs/plugin-react": "^4.2.0",
+        "autoprefixer": "^10.4.16",
+        "concurrently": "^8.2.0",
+        "electron": "^28.0.0",
+        "electron-builder": "^24.9.1",
+        "lucide-react": "^0.294.0",
+        "postcss": "^8.4.32",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "tailwindcss": "^3.3.6",
+        "typescript": "^5.3.0",
+        "vite": "^5.0.0",
+        "wait-on": "^7.2.0"
+    }
+}
