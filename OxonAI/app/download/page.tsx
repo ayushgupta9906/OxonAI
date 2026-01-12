@@ -13,10 +13,12 @@ export default function DownloadPage() {
         setSelectedPlatform(platform);
         setDownloading(true);
 
+        const releaseBase = "https://github.com/ayushgupta9906/OxonAI/releases/download/v1.0.0";
+
         const fileMap: Record<string, string> = {
-            windows: '/downloads/OxonAI-IDE-Setup.exe',
-            linux: '/downloads/OxonAI-IDE-Linux.zip',
-            mac: '/downloads/OxonAI-IDE-Mac.zip'
+            windows: `${releaseBase}/OxonAI-IDE-Setup.exe`,
+            linux: `${releaseBase}/OxonAI-IDE-Linux.zip`,
+            mac: `${releaseBase}/OxonAI-IDE-Mac.zip`
         };
 
         const url = fileMap[platform];
