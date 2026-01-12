@@ -1,12 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <main className="min-h-screen flex items-center justify-center px-6 py-24 text-white">
+                <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            </main>
+        }>
+            <LoginContent />
+        </Suspense>
+    );
+}
+
+function LoginContent() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -160,7 +172,7 @@ export default function LoginPage() {
 
                     {/* Register Link */}
                     <p className="text-center text-foreground-secondary mt-6">
-                        Don't have an account?{" "}
+                        Don&apos;t have an account?{" "}
                         <Link
                             href="/register"
                             className="text-purple-500 hover:text-purple-400 font-medium"

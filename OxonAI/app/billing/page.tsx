@@ -103,7 +103,7 @@ export default function BillingDashboard() {
                         </div>
                         <h1 className="font-display text-display-sm mb-4">No Active Subscription</h1>
                         <p className="text-foreground-secondary mb-8">
-                            You don't have an active subscription yet. Choose a plan to get started with OxonAI.
+                            You don&apos;t have an active subscription yet. Choose a plan to get started with OxonAI.
                         </p>
                         <button
                             onClick={() => router.push("/pricing")}
@@ -157,8 +157,8 @@ export default function BillingDashboard() {
                                 </p>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${subscription.status === "active"
-                                    ? "bg-gradient-to-r from-purple-600 to-blue-500 text-white"
-                                    : "bg-yellow-500/10 text-yellow-500"
+                                ? "bg-gradient-to-r from-purple-600 to-blue-500 text-white"
+                                : "bg-yellow-500/10 text-yellow-500"
                                 }`}>
                                 {subscription.status}
                             </span>

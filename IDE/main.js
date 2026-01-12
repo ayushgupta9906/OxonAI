@@ -17,7 +17,7 @@ const store = new Store();
 let mainWindow;
 let terminals = new Map();
 const isDev = !app.isPackaged;
-const WEBSITE_URL = isDev ? 'http://localhost:3000' : 'https://oxonai-web.vercel.app';
+const WEBSITE_URL = isDev ? 'http://localhost:3000' : 'https://oxon-ai.vercel.app';
 let pendingAuthCode = null; // Store auth code from deep link
 
 // Register custom protocol

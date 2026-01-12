@@ -57,7 +57,7 @@ export default function ChatPage() {
             {/* Header */}
             <header className="px-6 py-4 border-b border-border bg-background-secondary/50">
                 <h1 className="font-display text-2xl">💬 Chat Assistant</h1>
-                <p className="text-foreground-secondary text-sm">Ask me anything - I'm here to help!</p>
+                <p className="text-foreground-secondary text-sm">Ask me anything - I&apos;m here to help!</p>
             </header>
 
             {/* Messages */}

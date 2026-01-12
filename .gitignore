@@ -23,3 +23,4 @@ OxonAI/out/
 # Root specific
 /dist/
 /temp/
+OxonAI/public/downloads/

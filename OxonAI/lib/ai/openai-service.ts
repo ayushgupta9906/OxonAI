@@ -154,4 +154,4 @@ export async function streamAIResponse(
     }
 }
 
-export default getOpenAI();
+export { getOpenAI };

@@ -27,7 +27,14 @@
             "build/**/*"
         ],
         "win": {
+            "icon": "assets/icon.png",
             "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                },
                 {
                     "target": "portable",
                     "arch": [
@@ -37,15 +44,17 @@
             ]
         },
         "mac": {
+            "icon": "assets/icon.png",
             "target": [
-                "dmg"
+                "dmg",
+                "zip"
             ],
             "category": "public.app-category.developer-tools"
         },
         "linux": {
+            "icon": "assets/icon.png",
             "target": [
                 "AppImage",
-                "deb",
                 "zip"
             ],
             "category": "Development"

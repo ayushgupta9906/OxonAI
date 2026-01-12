@@ -2,9 +2,21 @@
 
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 
 export default function PaymentSuccess() {
+    return (
+        <Suspense fallback={
+            <main className="min-h-screen pt-24 pb-16 px-6 md:px-12 lg:px-24 flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            </main>
+        }>
+            <SuccessContent />
+        </Suspense>
+    );
+}
+
+function SuccessContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const sessionId = searchParams.get("session_id");

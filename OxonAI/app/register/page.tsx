@@ -1,12 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function RegisterPage() {
+    return (
+        <Suspense fallback={
+            <main className="min-h-screen flex items-center justify-center px-6 py-24 text-white">
+                <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            </main>
+        }>
+            <RegisterContent />
+        </Suspense>
+    );
+}
+
+function RegisterContent() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
