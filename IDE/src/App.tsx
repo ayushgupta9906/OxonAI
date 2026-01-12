@@ -15,6 +15,7 @@ import ExtensionsPanel from './components/ExtensionsPanel';
 import Templates from './components/Templates';
 import Settings from './components/Settings';
 import AccountWidget from './components/AccountWidget';
+import AgentSidebar from './components/agentic/AgentSidebar';
 
 // AI Tools
 import Chat from './components/tools/Chat';
@@ -39,11 +40,12 @@ function App() {
     const [aiSettings, setAiSettings] = useState({ apiKey: '', huggingFaceApiKey: '', geminiApiKey: '', aiProvider: 'openai' });
     const [showCommandPalette, setShowCommandPalette] = useState(false);
     const [sidebarWidth, setSidebarWidth] = useState(260);
+    const [showAgentSidebar, setShowAgentSidebar] = useState(true);
 
     // Editor state
     const [openFiles, setOpenFiles] = useState<string[]>([]);
     const [currentFile, setCurrentFile] = useState<string | null>(null);
-    const [rootPath, setRootPath] = useState<string | null>(null);
+    const [rootPath] = useState<string | null>(null);
 
     useEffect(() => {
         loadSettings();
@@ -245,6 +247,8 @@ function App() {
                     onPanelChange={handlePanelChange}
                     showTerminal={false}
                     onToggleTerminal={() => { }}
+                    showAgentSidebar={showAgentSidebar}
+                    onToggleAgentSidebar={() => setShowAgentSidebar(!showAgentSidebar)}
                 />
 
                 {/* Sidebar */}
@@ -261,6 +265,11 @@ function App() {
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {renderMainContent()}
                 </div>
+
+                {/* Agent Sidebar */}
+                {showAgentSidebar && (
+                    <AgentSidebar onClose={() => setShowAgentSidebar(false)} />
+                )}
             </div>
 
             {/* Status Bar */}

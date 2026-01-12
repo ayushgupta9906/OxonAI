@@ -1,6 +1,7 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { generateAIResponse, SYSTEM_PROMPTS } from '@/lib/ai/openai-service';
 import { checkRateLimit, recordUsage } from '@/lib/rate-limiter';
 import prisma from '@/lib/db';

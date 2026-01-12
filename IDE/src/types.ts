@@ -93,6 +93,9 @@ export interface FileItem {
 
 export interface Settings {
     apiKey?: string;
+    huggingFaceApiKey?: string;
+    geminiApiKey?: string;
+    aiProvider?: string;
     theme?: 'dark' | 'light' | 'system';
     fontSize?: number;
     fontFamily?: string;
@@ -104,11 +107,57 @@ export interface Settings {
     autoSaveDelay?: number;
 }
 
+export interface Action {
+    id: string;
+    type: 'research' | 'code' | 'test' | 'command';
+    title: string;
+    description: string;
+    status: 'pending' | 'running' | 'success' | 'error';
+    timestamp: string;
+}
+
+export interface FileChange {
+    path: string;
+    type: 'modify' | 'new' | 'delete';
+    diff?: string;
+}
+
+export interface TableData {
+    headers: string[];
+    rows: any[][];
+}
+
 export interface ChatMessage {
     id: number;
     role: 'user' | 'assistant';
     content: string;
     timestamp: string;
+    thought?: string;
+    task?: {
+        name: string;
+        summary: string;
+        status: string;
+        items: { id: string; text: string; status: 'pending' | 'in-progress' | 'completed' }[];
+    };
+    toolCalls?: {
+        id: string;
+        toolName: string;
+        command: string;
+        status: 'running' | 'success' | 'error';
+        output?: string;
+    }[];
+    actions?: Action[];
+    fileChanges?: FileChange[];
+    table?: TableData;
+}
+
+export type Message = ChatMessage;
+
+export interface AgentState {
+    currentTask: ChatMessage['task'] | null;
+    recentActions: Action[];
+    fileChanges: FileChange[];
+    isThinking: boolean;
 }
 
 export interface SavedChat {

@@ -43,8 +43,8 @@ const config: Config = {
                 xs: "2px",
             },
             fontFamily: {
-                sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-                display: ["var(--font-outfit)", "var(--font-inter)", "system-ui", "sans-serif"],
+                sans: ["Inter", "system-ui", "sans-serif"],
+                display: ["Outfit", "Inter", "system-ui", "sans-serif"],
             },
             fontSize: {
                 "display-lg": ["4.5rem", { lineHeight: "1.1", fontWeight: "700", letterSpacing: "-0.02em" }],

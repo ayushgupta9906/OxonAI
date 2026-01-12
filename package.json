@@ -1,0 +1,16 @@
+{
+    "name": "oxonai-suite",
+    "version": "1.0.0",
+    "description": "OxonAI - Unified Development Environment",
+    "scripts": {
+        "cleanup": "lsof -ti:5173,3000 | xargs kill -9 2>/dev/null || true",
+        "predev": "npm run cleanup",
+        "dev:web": "cd OxonAI && npm run dev",
+        "dev:ide": "cd IDE && npm run dev",
+        "dev": "concurrently \"npm run dev:web\" \"npm run dev:ide\"",
+        "install:all": "npm install && concurrently \"cd OxonAI && npm install\" \"cd IDE && npm install\""
+    },
+    "dependencies": {
+        "concurrently": "^8.2.2"
+    }
+}

@@ -7,121 +7,105 @@ import { useEffect, useState } from "react";
 export default function DownloadPage() {
     const router = useRouter();
     const [downloading, setDownloading] = useState(false);
+    const [selectedPlatform, setSelectedPlatform] = useState<'windows' | 'linux' | 'mac' | null>(null);
 
-    const handleDownload = () => {
+    const handlePlatformDownload = (platform: 'windows' | 'linux' | 'mac') => {
+        setSelectedPlatform(platform);
         setDownloading(true);
-        // Simulate download - replace with actual file download
+
+        const fileMap: Record<string, string> = {
+            windows: '/downloads/OxonAI-IDE-Setup.exe',
+            linux: '/downloads/OxonAI-IDE-Linux.zip',
+            mac: '/downloads/OxonAI-IDE-Mac.zip'
+        };
+
+        const url = fileMap[platform];
+        const name = url.split('/').pop() || 'OxonAI-IDE';
+
         setTimeout(() => {
-            alert("OxonAI IDE download will start here.\n\nFile: OxonAI-IDE-Setup.exe\nYou'll integrate your IDE file later.");
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
             setDownloading(false);
-        }, 1500);
+            setSelectedPlatform(null);
+        }, 1200);
     };
+
+    const platforms = [
+        { id: 'windows', name: 'Windows', icon: '🪟' },
+        { id: 'mac', name: 'macOS', icon: '🍎' },
+        { id: 'linux', name: 'Linux', icon: '🐧' },
+    ] as const;
 
     return (
         <main className="min-h-screen pt-24 pb-16 px-6 md:px-12 lg:px-24 flex items-center justify-center">
             <motion.div
-                className="max-w-3xl mx-auto text-center"
+                className="max-w-4xl mx-auto text-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
             >
-                <div className="bg-background-secondary/80 backdrop-blur-sm border border-border rounded-2xl p-12">
-                    {/* Icon */}
+                <div className="bg-background-secondary/80 backdrop-blur-sm border border-border rounded-2xl p-8 md:p-12">
                     <motion.div
-                        className="w-24 h-24 bg-gradient-to-br from-purple-600 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-8"
+                        className="w-20 h-20 bg-gradient-to-br from-purple-600 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", duration: 0.5 }}
                     >
-                        <svg
-                            className="w-12 h-12 text-white"
-                            fill="none"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                         </svg>
                     </motion.div>
 
-                    <h1 className="font-display text-display-sm mb-4">
-                        Download OxonAI IDE
-                    </h1>
-                    <p className="text-body-lg text-foreground-secondary mb-8">
-                        Your payment was successful! Download the OxonAI IDE to start building.
-                    </p>
+                    <h1 className="font-display text-display-sm mb-2">Download OxonAI IDE</h1>
+                    <p className="text-foreground-secondary mb-10">Your payment was successful! Select your platform to download the IDE.</p>
 
-                    {/* Download Button */}
-                    <motion.button
-                        onClick={handleDownload}
-                        disabled={downloading}
-                        className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white rounded-full font-medium transition-all duration-200 shadow-lg text-lg disabled:opacity-50 disabled:cursor-not-allowed mb-6"
-                        whileHover={{ scale: downloading ? 1 : 1.05 }}
-                        whileTap={{ scale: downloading ? 1 : 0.95 }}
-                    >
-                        {downloading ? (
-                            <span className="flex items-center gap-3">
-                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                Preparing Download...
-                            </span>
-                        ) : (
-                            <span className="flex items-center gap-3 justify-center">
-                                <svg
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                                </svg>
-                                Download OxonAI IDE
-                            </span>
-                        )}
-                    </motion.button>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+                        {platforms.map((p) => (
+                            <motion.button
+                                key={p.id}
+                                onClick={() => handlePlatformDownload(p.id)}
+                                disabled={downloading}
+                                className={`flex flex-col items-center gap-4 p-6 rounded-2xl border transition-all duration-200 ${selectedPlatform === p.id
+                                    ? 'bg-purple-600/10 border-purple-500 shadow-lg'
+                                    : 'bg-background-tertiary border-border hover:border-purple-500/50 hover:bg-background-tertiary/80'
+                                    } disabled:opacity-50`}
+                                whileHover={{ y: -5 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <span className="text-4xl mb-2">{p.icon}</span>
+                                <div className="text-left">
+                                    <h3 className="font-semibold text-lg text-foreground">{p.name}</h3>
+                                    <span className="text-xs text-foreground-secondary">
+                                        {p.id === 'windows' ? '64-bit installer' : '.zip package'}
+                                    </span>
+                                </div>
 
-                    {/* Info */}
-                    <div className="bg-background-tertiary border border-border rounded-xl p-6 mb-8 text-left">
-                        <h3 className="font-semibold mb-3 text-foreground">System Requirements</h3>
-                        <ul className="space-y-2 text-sm text-foreground-secondary">
-                            <li className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                                Windows 10/11 or macOS 10.15+
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                                4GB RAM minimum (8GB recommended)
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                                500MB free disk space
-                            </li>
-                        </ul>
+                                {selectedPlatform === p.id && downloading ? (
+                                    <div className="mt-2 w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                    <div className="mt-2 px-3 py-1 bg-foreground/5 rounded-full text-[10px] uppercase font-bold tracking-wider text-foreground-secondary">
+                                        Download
+                                    </div>
+                                )}
+                            </motion.button>
+                        ))}
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <motion.button
                             onClick={() => router.push("/dashboard")}
-                            className="px-6 py-3 bg-background-tertiary hover:bg-border text-foreground rounded-full font-medium transition-all duration-200 border border-border"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            className="px-6 py-2.5 bg-background-tertiary hover:bg-border text-foreground rounded-full text-sm font-medium border border-border transition-colors"
                         >
                             Go to Dashboard
                         </motion.button>
                         <motion.button
                             onClick={() => router.push("/")}
-                            className="px-6 py-3 text-foreground-secondary hover:text-foreground transition-colors"
-                            whileHover={{ scale: 1.05 }}
+                            className="text-sm text-foreground-secondary hover:text-foreground transition-colors"
                         >
                             Back to Home
                         </motion.button>

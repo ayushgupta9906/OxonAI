@@ -94,12 +94,23 @@ function createWindow() {
 
     const isDev = !app.isPackaged;
     if (isDev) {
-        mainWindow.loadURL('http://localhost:5173').catch(() => {
-            mainWindow.loadURL('http://localhost:5174').catch(() => {
-                mainWindow.loadURL('http://localhost:5175');
-            });
-        });
-        mainWindow.webContents.openDevTools();
+        // Small delay to ensure window is fully initialized
+        setTimeout(() => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.loadURL('http://localhost:5173').catch((err) => {
+                    console.error('Failed to load port 5173:', err.message);
+                    if (mainWindow && !mainWindow.isDestroyed()) {
+                        mainWindow.loadURL('http://localhost:5174').catch((err2) => {
+                            console.error('Failed to load port 5174:', err2.message);
+                            if (mainWindow && !mainWindow.isDestroyed()) {
+                                mainWindow.loadURL('http://localhost:5175').catch(console.error);
+                            }
+                        });
+                    }
+                });
+                mainWindow.webContents.openDevTools();
+            }
+        }, 100);
     } else {
         mainWindow.loadFile(path.join(__dirname, 'build', 'index.html'));
     }
@@ -326,19 +337,27 @@ ipcMain.handle('get-api-key', () => store.get('settings.apiKey', ''));
 
 // OAuth Login
 ipcMain.handle('oauth-login', async () => {
-    const authUrl = `${WEBSITE_URL}/api/auth/ide-callback`;
+    const authUrl = `${WEBSITE_URL}/api/ide-callback`;
     shell.openExternal(authUrl);
     return { success: true };
 });
 
 // Exchange auth code for user data
+let processingAuthCode = null; // Track code being processed
 ipcMain.handle('exchange-auth-code', async (_, code) => {
+    // Prevent duplicate processing of the same code
+    if (processingAuthCode === code) {
+        console.log('IDE: Skipping duplicate auth code exchange');
+        return { success: false, error: 'Already processing this code' };
+    }
+
+    processingAuthCode = code;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
     try {
         console.log('IDE: Exchanging auth code:', code);
-        const response = await fetch(`${WEBSITE_URL}/api/auth/ide-callback`, {
+        const response = await fetch(`${WEBSITE_URL}/api/ide-callback`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code }),
@@ -374,6 +393,9 @@ ipcMain.handle('exchange-auth-code', async (_, code) => {
         }
         console.error('IDE: Auth exchange error:', error);
         return { success: false, error: error.message };
+    } finally {
+        // Clear the processing flag after a successful exchange
+        setTimeout(() => { processingAuthCode = null; }, 1000);
     }
 });
 

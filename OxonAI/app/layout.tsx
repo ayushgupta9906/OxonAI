@@ -1,21 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Providers } from "./providers";
-
-const inter = Inter({
-    subsets: ["latin"],
-    variable: "--font-inter",
-    display: "swap",
-});
-
-const outfit = Outfit({
-    subsets: ["latin"],
-    variable: "--font-outfit",
-    display: "swap",
-});
 
 export const metadata: Metadata = {
     title: "OxonAI - Build once. Output everywhere.",
@@ -47,7 +34,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
+        <html lang="en" suppressHydrationWarning>
             <body className="font-sans antialiased">
                 <Providers>
                     <ThemeProvider>

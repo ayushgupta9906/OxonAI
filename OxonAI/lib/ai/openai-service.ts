@@ -1,8 +1,18 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+let openaiInstance: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+    if (!openaiInstance) {
+        if (!process.env.OPENAI_API_KEY) {
+            throw new Error('OPENAI_API_KEY environment variable is not set');
+        }
+        openaiInstance = new OpenAI({
+            apiKey: process.env.OPENAI_API_KEY,
+        });
+    }
+    return openaiInstance;
+}
 
 export interface AIRequestOptions {
     systemPrompt: string;
@@ -78,7 +88,7 @@ export async function generateAIResponse(options: AIRequestOptions): Promise<AIR
     } = options;
 
     try {
-        const response = await openai.chat.completions.create({
+        const response = await getOpenAI().chat.completions.create({
             model,
             messages: [
                 { role: 'system', content: systemPrompt },
@@ -115,7 +125,7 @@ export async function streamAIResponse(
     } = options;
 
     try {
-        const stream = await openai.chat.completions.create({
+        const stream = await getOpenAI().chat.completions.create({
             model,
             messages: [
                 { role: 'system', content: systemPrompt },
@@ -144,4 +154,4 @@ export async function streamAIResponse(
     }
 }
 
-export default openai;
+export default getOpenAI();

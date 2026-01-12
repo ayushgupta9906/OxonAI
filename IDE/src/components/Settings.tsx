@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
     Settings as SettingsIcon,
     Palette,
@@ -278,18 +278,25 @@ export default function Settings({ onApiKeyUpdate }: SettingsProps) {
 
     const renderAccountSettings = () => {
         const [loggingIn, setLoggingIn] = useState(false);
+        const authTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
         useEffect(() => {
-            // Listen for auth codes from deep links
+            // Deep link auth is now handled automatically by main.js
+            // No need to exchange code here - main.js does it and stores user data
+            // This effect just listens for when the user data is updated
+            /* DISABLED - main.js handles deep links automatically
             if (window.electronAPI) {
                 window.electronAPI.onAuthCodeReceived(async (code: string) => {
+                    // Clear any pending timeout
+                    if (authTimeoutRef.current) clearTimeout(authTimeoutRef.current);
+
                     setLoggingIn(true);
                     try {
                         const result = await window.electronAPI.exchangeAuthCode(code);
                         if (result.success && result.user) {
                             updateSetting('oxonUser', result.user);
                             await saveSettings();
-                            alert(`Successfully logged in as ${result.user.email}\nPlan: ${result.user.plan}`);
+                            alert(`Successfully logged in as ${result.user.email}\\nPlan: ${result.user.plan}`);
                         } else {
                             alert(`Login failed: ${result.error}`);
                         }
@@ -300,6 +307,7 @@ export default function Settings({ onApiKeyUpdate }: SettingsProps) {
                     }
                 });
             }
+            */
         }, []);
 
         const handleOAuthLogin = async () => {
@@ -308,10 +316,19 @@ export default function Settings({ onApiKeyUpdate }: SettingsProps) {
                 return;
             }
             setLoggingIn(true);
+
+            // Set timeout to cancel authentication after 2 minutes
+            authTimeoutRef.current = setTimeout(() => {
+                setLoggingIn(false);
+                alert('Authentication timeout. Please try again.');
+            }, 2 * 60 * 1000); // 2 minutes
+
             try {
                 await window.electronAPI.oauthLogin();
                 // The rest is handled by the deep link callback
+                // If successful, the callback will clear the timeout
             } catch (err: any) {
+                if (authTimeoutRef.current) clearTimeout(authTimeoutRef.current);
                 alert(`Failed to open login page: ${err.message}`);
                 setLoggingIn(false);
             }
@@ -356,6 +373,79 @@ export default function Settings({ onApiKeyUpdate }: SettingsProps) {
                             <p className="text-[10px] text-gray-500 mt-2 text-center">
                                 Opens browser to authenticate securely
                             </p>
+
+                            {/* Manual code input fallback */}
+                            <div className="mt-4 pt-4 border-t border-purple-500/20">
+                                <p className="text-xs text-[#a1a1aa] mb-2">
+                                    Or paste your auth code manually:
+                                </p>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        id="manual-auth-code"
+                                        placeholder="ide_..."
+                                        className="flex-1 px-3 py-2 bg-[#18181b] border border-[#27272a] rounded-lg text-sm focus:border-purple-500 focus:outline-none"
+                                        onKeyPress={async (e) => {
+                                            if (e.key === 'Enter') {
+                                                const input = e.currentTarget;
+                                                const code = input.value.trim();
+                                                if (code && window.electronAPI) {
+                                                    // Clear any pending timeout
+                                                    if (authTimeoutRef.current) clearTimeout(authTimeoutRef.current);
+                                                    setLoggingIn(true);
+                                                    try {
+                                                        const result = await window.electronAPI.exchangeAuthCode(code);
+                                                        if (result.success && result.user) {
+                                                            updateSetting('oxonUser', result.user);
+                                                            await saveSettings();
+                                                            alert(`Successfully logged in as ${result.user.email}\\nPlan: ${result.user.plan}`);
+                                                            input.value = '';
+                                                        } else {
+                                                            alert(`Login failed: ${result.error}`);
+                                                        }
+                                                    } catch (err: any) {
+                                                        alert(`Error: ${err.message}`);
+                                                    } finally {
+                                                        setLoggingIn(false);
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                    />
+                                    <button
+                                        className="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 text-sm rounded-lg transition"
+                                        onClick={async () => {
+                                            const input = document.getElementById('manual-auth-code') as HTMLInputElement;
+                                            const code = input?.value.trim();
+                                            if (code && window.electronAPI) {
+                                                // Clear any pending timeout
+                                                if (authTimeoutRef.current) clearTimeout(authTimeoutRef.current);
+                                                setLoggingIn(true);
+                                                try {
+                                                    const result = await window.electronAPI.exchangeAuthCode(code);
+                                                    if (result.success && result.user) {
+                                                        updateSetting('oxonUser', result.user);
+                                                        await saveSettings();
+                                                        alert(`Successfully logged in as ${result.user.email}\\nPlan: ${result.user.plan}`);
+                                                        input.value = '';
+                                                    } else {
+                                                        alert(`Login failed: ${result.error}`);
+                                                    }
+                                                } catch (err: any) {
+                                                    alert(`Error: ${err.message}`);
+                                                } finally {
+                                                    setLoggingIn(false);
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        Submit
+                                    </button>
+                                </div>
+                                <p className="text-[10px] text-gray-500 mt-1">
+                                    Get the code from the browser after clicking sign in
+                                </p>
+                            </div>
                         </>
                     ) : (
                         <div className="space-y-3">

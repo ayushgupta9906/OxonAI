@@ -1,7 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Trash2, Sparkles, History, Plus, X } from 'lucide-react';
+import { Send, Sparkles, History, Plus, X } from 'lucide-react';
 import { AIProvider, generateAI, SYSTEM_PROMPTS } from '../../services/ai';
 import type { Message } from '../../types';
+import { useAgent } from '../../providers/AgentProvider';
+import ThoughtBlock from '../agentic/ThoughtBlock';
+import TaskView from '../agentic/TaskView';
+import ToolLog from '../agentic/ToolLog';
+import Table from '../agentic/Table';
 
 interface ChatProps {
     apiKey: string;
@@ -12,10 +17,11 @@ const suggestions = [
     "Explain quantum computing",
     "Write a poem about code",
     "How to learn React?",
-    "Debug my JavaScript",
+    "Demo Agentic features",
 ];
 
 export default function Chat({ apiKey, provider }: ChatProps) {
+    const { setCurrentTask, addAction, updateAction, addFileChange, setIsThinking } = useAgent();
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -54,17 +60,126 @@ export default function Chat({ apiKey, provider }: ChatProps) {
 
         const userMessage = input.trim();
         setInput('');
-        const newMessages = [...messages, { role: 'user' as const, content: userMessage }];
+
+        const newUserMsg: Message = {
+            id: Date.now(),
+            role: 'user',
+            content: userMessage,
+            timestamp: new Date().toISOString()
+        };
+
+        const newMessages = [...messages, newUserMsg];
         setMessages(newMessages);
         setLoading(true);
 
+        // Special demo case
+        if (userMessage.toLowerCase() === 'demo agentic features') {
+            setIsThinking(true);
+
+            const task = {
+                name: "Demonstrating OxonAI Agentic Capabilities",
+                summary: "I am showing off the new Thought Blocks, Task Tracking, and Tool Execution logs in the OxonAI IDE.",
+                status: "Configuring Demo Environment",
+                items: [
+                    { id: '1', text: "Initialize agentic UI components", status: 'completed' as const },
+                    { id: '2', text: "Display thought process", status: 'completed' as const },
+                    { id: '3', text: "Show task progress tracker", status: 'in-progress' as const },
+                    { id: '4', text: "Record tool execution logs", status: 'pending' as const },
+                ]
+            };
+
+            setCurrentTask(task);
+
+            // Simulate actions
+            addAction({
+                id: 'act_1',
+                type: 'research',
+                title: 'Analyzing Project Structure',
+                description: 'Searching for React components in src/',
+                status: 'success',
+                timestamp: new Date().toISOString()
+            });
+
+            addAction({
+                id: 'act_2',
+                type: 'command',
+                title: 'Running UI Tests',
+                description: 'npm run test:ui',
+                status: 'running',
+                timestamp: new Date().toISOString()
+            });
+
+            // Simulate file changes
+            addFileChange({
+                path: 'IDE/src/components/agentic/AgentSidebar.tsx',
+                type: 'new',
+                diff: '+ New sidebar component'
+            });
+
+            setTimeout(() => {
+                updateAction('act_2', 'success');
+                setIsThinking(false);
+
+                const demoMsg: Message = {
+                    id: Date.now() + 1,
+                    role: 'assistant',
+                    timestamp: new Date().toISOString(),
+                    thought: "I need to demonstrate the new agentic features. I'll show a task breakdown, some tool executions, and internal reasoning.",
+                    task: task,
+                    toolCalls: [
+                        {
+                            id: 'tool_1',
+                            toolName: 'shell_execute',
+                            command: 'npm run test:ui',
+                            status: 'success',
+                            output: 'UI components verified: ThoughtBlock, TaskView, ToolLog. All tests passed.'
+                        },
+                        {
+                            id: 'tool_2',
+                            toolName: 'file_search',
+                            command: 'find . -name "*.tsx"',
+                            status: 'running'
+                        }
+                    ],
+                    table: {
+                        headers: ['Component', 'Status', 'Performance'],
+                        rows: [
+                            ['ThoughtBlock', 'Ready', 'Fast'],
+                            ['TaskView', 'Ready', 'Smooth'],
+                            ['ToolLog', 'Ready', 'Monospaced'],
+                            ['Table', 'Ready', 'Structured'],
+                        ]
+                    },
+                    content: "This is a demonstration of my new agentic features! As you can see, I can now share my internal reasoning, track complex tasks step-by-step, and show you exactly which tools I'm running in real-time. I've also populated the Agent Workspace sidebar on the right with our current progress!"
+                };
+                setMessages(prev => [...prev, demoMsg]);
+                setLoading(false);
+                saveChatHistory([...newMessages, demoMsg]);
+            }, 2000);
+            return;
+        }
+
         try {
             const response = await generateAI(apiKey, SYSTEM_PROMPTS.chat, userMessage, { provider });
-            const updatedMessages = [...newMessages, { role: 'assistant' as const, content: response }];
+
+            const newAssistantMsg: Message = {
+                id: Date.now() + 1,
+                role: 'assistant',
+                content: response,
+                timestamp: new Date().toISOString()
+            };
+
+            const updatedMessages = [...newMessages, newAssistantMsg];
             setMessages(updatedMessages);
             saveChatHistory(updatedMessages);
         } catch (error: any) {
-            setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${error.message}` }]);
+            const errorMsg: Message = {
+                id: Date.now() + 2,
+                role: 'assistant',
+                content: `Error: ${error.message}`,
+                timestamp: new Date().toISOString()
+            };
+            setMessages(prev => [...prev, errorMsg]);
         } finally {
             setLoading(false);
         }
@@ -188,6 +303,23 @@ export default function Chat({ apiKey, provider }: ChatProps) {
                                         : 'bg-[#18181b] border border-[#27272a] text-[#e4e4e7]'
                                         }`}
                                 >
+                                    {msg.thought && <ThoughtBlock thought={msg.thought} />}
+
+                                    {msg.task && (
+                                        <TaskView
+                                            taskName={msg.task.name}
+                                            summary={msg.task.summary}
+                                            status={msg.task.status}
+                                            items={msg.task.items}
+                                        />
+                                    )}
+
+                                    {msg.toolCalls?.map((tool) => (
+                                        <ToolLog key={tool.id} toolCall={tool} />
+                                    ))}
+
+                                    {msg.table && <Table data={msg.table} />}
+
                                     <p className="whitespace-pre-wrap">{msg.content}</p>
                                 </div>
                             </div>
