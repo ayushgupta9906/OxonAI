@@ -36,8 +36,8 @@ export default function DownloadPage() {
     };
 
     const platforms = [
-        // { id: 'windows', name: 'Windows', icon: '🪟' }, // Building via GitHub Actions
-        // { id: 'mac', name: 'macOS', icon: '🍎' }, // Building via GitHub Actions
+        { id: 'windows', name: 'Windows', icon: '🪟' },
+        { id: 'mac', name: 'macOS', icon: '🍎' },
         { id: 'linux', name: 'Linux', icon: '🐧' },
     ] as const;
 
@@ -81,15 +81,15 @@ export default function DownloadPage() {
                                 <div className="text-left">
                                     <h3 className="font-semibold text-lg text-foreground">{p.name}</h3>
                                     <span className="text-xs text-foreground-secondary">
-                                        .AppImage + .zip package
+                                        {p.id === 'windows' ? '.exe installer' : p.id === 'mac' ? '.dmg + .zip' : '.AppImage + .zip'}
                                     </span>
                                 </div>
 
                                 {selectedPlatform === p.id && downloading ? (
                                     <div className="mt-2 w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
                                 ) : (
-                                    <div className="mt-2 px-3 py-1 bg-foreground/5 rounded-full text-[10px] uppercase font-bold tracking-wider text-foreground-secondary">
-                                        Download
+                                    <div className={`mt-2 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${p.id !== 'linux' ? 'bg-orange-500/10 text-orange-400' : 'bg-foreground/5 text-foreground-secondary'}`}>
+                                        {p.id !== 'linux' ? 'Building' : 'Download'}
                                     </div>
                                 )}
                             </motion.button>

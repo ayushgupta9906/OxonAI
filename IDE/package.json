@@ -58,14 +58,6 @@
                 "zip"
             ],
             "category": "Development"
-        },
-        "nsis": {
-            "oneClick": false,
-            "allowToChangeInstallationDirectory": true,
-            "createDesktopShortcut": true,
-            "createStartMenuShortcut": true,
-            "shortcutName": "OxonAI IDE",
-            "include": "assets/installer.nsh"
         }
     },
     "dependencies": {
