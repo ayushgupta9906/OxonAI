@@ -13,12 +13,10 @@ export default function DownloadPage() {
         setSelectedPlatform(platform);
         setDownloading(true);
 
-        const releaseBase = "https://github.com/ayushgupta9906/OxonAI/releases/download/v1.0.0";
-
         const fileMap: Record<string, string> = {
-            windows: `${releaseBase}/OxonAI-IDE-Setup.exe`,
-            linux: `${releaseBase}/OxonAI-IDE-Linux.zip`,
-            mac: `${releaseBase}/OxonAI-IDE-Mac.zip`
+            windows: `/downloads/OxonAI-IDE-Setup.exe`,
+            linux: `/downloads/OxonAI-IDE-Linux.zip`,
+            mac: `/downloads/OxonAI-IDE-Mac.zip`
         };
 
         const url = fileMap[platform];
@@ -38,8 +36,8 @@ export default function DownloadPage() {
     };
 
     const platforms = [
-        { id: 'windows', name: 'Windows', icon: '🪟' },
-        { id: 'mac', name: 'macOS', icon: '🍎' },
+        // { id: 'windows', name: 'Windows', icon: '🪟' }, // Building via GitHub Actions
+        // { id: 'mac', name: 'macOS', icon: '🍎' }, // Building via GitHub Actions
         { id: 'linux', name: 'Linux', icon: '🐧' },
     ] as const;
 
@@ -83,7 +81,7 @@ export default function DownloadPage() {
                                 <div className="text-left">
                                     <h3 className="font-semibold text-lg text-foreground">{p.name}</h3>
                                     <span className="text-xs text-foreground-secondary">
-                                        {p.id === 'windows' ? '64-bit installer' : '.zip package'}
+                                        .AppImage + .zip package
                                     </span>
                                 </div>
 

@@ -64,7 +64,8 @@
             "allowToChangeInstallationDirectory": true,
             "createDesktopShortcut": true,
             "createStartMenuShortcut": true,
-            "shortcutName": "OxonAI IDE"
+            "shortcutName": "OxonAI IDE",
+            "include": "assets/installer.nsh"
         }
     },
     "dependencies": {
