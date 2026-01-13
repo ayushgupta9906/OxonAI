@@ -110,7 +110,7 @@ function createWindow() {
                 });
                 mainWindow.webContents.openDevTools();
             }
-        }, 100);
+        }, 2000);
     } else {
         mainWindow.loadFile(path.join(__dirname, 'build', 'index.html'));
     }

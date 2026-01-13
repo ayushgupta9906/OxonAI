@@ -4,7 +4,8 @@
     "description": "OxonAI - Unified Development Environment",
     "scripts": {
         "cleanup": "lsof -ti:5173,3000 | xargs kill -9 2>/dev/null || true",
-        "predev": "npm run cleanup",
+        "check:mongo": "echo '🔍 Checking MongoDB Atlas connection...' && cd OxonAI && node -e \"const {MongoClient}=require('mongodb');const uri=process.env.DATABASE_URL||'mongodb+srv://arush:WhaHzwnWRHGhuumO@insta.hsmer.mongodb.net/OxonAI?retryWrites=true&w=majority&appName=Insta&connectTimeoutMS=10000&serverSelectionTimeoutMS=10000';const client=new MongoClient(uri,{serverSelectionTimeoutMS:5000});client.connect().then(()=>{console.log('✅ MongoDB Atlas Connected');client.close()}).catch(e=>{console.log('❌ MongoDB connection failed:',e.message);console.log('⚠️  Google OAuth will not work without database connection');process.exit(0)})\" || echo '⚠️  MongoDB driver missing'",
+        "predev": "npm run cleanup && npm run check:mongo",
         "dev:web": "cd OxonAI && npm run dev",
         "dev:ide": "cd IDE && npm run dev",
         "dev": "concurrently \"npm run dev:web\" \"npm run dev:ide\"",
