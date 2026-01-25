@@ -5,6 +5,12 @@ const fsSync = require('fs');
 const Store = require('electron-store');
 const { simpleGit } = require('simple-git');
 
+// Enable TypeScript support for agent code
+require('ts-node').register({
+    project: path.join(__dirname, 'tsconfig.agent.json'),
+    transpileOnly: true
+});
+
 // Try to load node-pty (may fail if not compiled)
 let pty;
 try {
@@ -447,6 +453,80 @@ ipcMain.handle('uninstall-extension', (_, extensionId) => {
     const extensions = store.get('extensions', []).filter(e => e.id !== extensionId);
     store.set('extensions', extensions);
     return { success: true };
+});
+
+// ============ AGENT OPERATIONS ============
+
+const { AgentOrchestrator } = require('./agent/orchestrator');
+const os = require('os');
+
+ipcMain.handle('agent:generate-project', async (event, { prompt, model = 'openai/gpt-oss-120b:free', apiKey }) => {
+    try {
+        // Create project directory
+        const projectName = `project_${Date.now()}`;
+        const documentsPath = app.getPath('documents');
+        const projectPath = path.join(documentsPath, 'OxonAI Projects', projectName);
+
+        // Ensure OxonAI Projects folder exists
+        await fs.mkdir(path.join(documentsPath, 'OxonAI Projects'), { recursive: true });
+
+        // Create orchestrator
+        const orchestrator = new AgentOrchestrator({ model, apiKey });
+
+        // Forward events to renderer
+        orchestrator.on('event', (eventData) => {
+            mainWindow.webContents.send('agent:event', eventData);
+        });
+
+        // Execute task
+        const result = await orchestrator.executeTask(prompt, projectPath);
+
+        return {
+            success: result.status === 'complete',
+            projectPath: result.projectPath,
+            taskId: result.id,
+        };
+    } catch (error) {
+        console.error('Agent generation error:', error);
+        return {
+            success: false,
+            error: error.message || 'Project generation failed',
+        };
+    }
+});
+
+// Get list of generated projects
+ipcMain.handle('agent:get-projects', async () => {
+    try {
+        const documentsPath = app.getPath('documents');
+        const projectsDir = path.join(documentsPath, 'OxonAI Projects');
+
+        // Check if directory exists
+        try {
+            const files = await fs.readdir(projectsDir);
+            const projects = [];
+
+            for (const file of files) {
+                const fullPath = path.join(projectsDir, file);
+                const stats = await fs.stat(fullPath);
+                if (stats.isDirectory()) {
+                    projects.push({
+                        name: file,
+                        path: fullPath,
+                        createdAt: stats.birthtime,
+                    });
+                }
+            }
+
+            return projects;
+        } catch (err) {
+            // Directory doesn't exist yet
+            return [];
+        }
+    } catch (error) {
+        console.error('Error getting projects:', error);
+        return [];
+    }
 });
 
 // Git operations

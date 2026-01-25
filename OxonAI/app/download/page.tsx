@@ -2,112 +2,59 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 
 export default function DownloadPage() {
     const router = useRouter();
-    const [downloading, setDownloading] = useState(false);
-    const [selectedPlatform, setSelectedPlatform] = useState<'windows' | 'linux' | 'mac' | null>(null);
-
-    const handlePlatformDownload = (platform: 'windows' | 'linux' | 'mac') => {
-        setSelectedPlatform(platform);
-        setDownloading(true);
-
-        const fileMap: Record<string, string> = {
-            windows: `/downloads/OxonAI-IDE-Setup.exe`,
-            linux: `/downloads/OxonAI-IDE-Linux.zip`,
-            mac: `/downloads/OxonAI-IDE-Mac.zip`
-        };
-
-        const url = fileMap[platform];
-        const name = url.split('/').pop() || 'OxonAI-IDE';
-
-        setTimeout(() => {
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = name;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            setDownloading(false);
-            setSelectedPlatform(null);
-        }, 1200);
-    };
-
-    const platforms = [
-        { id: 'windows', name: 'Windows', icon: '🪟' },
-        { id: 'mac', name: 'macOS', icon: '🍎' },
-        { id: 'linux', name: 'Linux', icon: '🐧' },
-    ] as const;
 
     return (
-        <main className="min-h-screen pt-24 pb-16 px-6 md:px-12 lg:px-24 flex items-center justify-center">
+        <main className="min-h-screen pt-24 pb-16 px-6 md:px-12 lg:px-24 flex items-center justify-center relative overflow-hidden">
+            {/* Background elements */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-3xl -z-10" />
+
             <motion.div
-                className="max-w-4xl mx-auto text-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+                className="max-w-2xl mx-auto text-center"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
             >
-                <div className="bg-background-secondary/80 backdrop-blur-sm border border-border rounded-2xl p-8 md:p-12">
+                <div className="bg-background-secondary/80 backdrop-blur-md border border-border rounded-3xl p-10 md:p-14 shadow-2xl">
                     <motion.div
-                        className="w-20 h-20 bg-gradient-to-br from-purple-600 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", duration: 0.5 }}
+                        className="w-20 h-20 bg-gradient-to-br from-purple-600 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-purple-500/20"
+                        initial={{ rotate: -10 }}
+                        animate={{ rotate: 0 }}
+                        transition={{ type: "spring", duration: 1 }}
                     >
-                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                        </svg>
+                        <Sparkles className="w-10 h-10 text-white" />
                     </motion.div>
 
-                    <h1 className="font-display text-display-sm mb-2">Download OxonAI IDE</h1>
-                    <p className="text-foreground-secondary mb-10">Your payment was successful! Select your platform to download the IDE.</p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-                        {platforms.map((p) => (
-                            <motion.button
-                                key={p.id}
-                                onClick={() => handlePlatformDownload(p.id)}
-                                disabled={downloading}
-                                className={`flex flex-col items-center gap-4 p-6 rounded-2xl border transition-all duration-200 ${selectedPlatform === p.id
-                                    ? 'bg-purple-600/10 border-purple-500 shadow-lg'
-                                    : 'bg-background-tertiary border-border hover:border-purple-500/50 hover:bg-background-tertiary/80'
-                                    } disabled:opacity-50`}
-                                whileHover={{ y: -5 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                <span className="text-4xl mb-2">{p.icon}</span>
-                                <div className="text-left">
-                                    <h3 className="font-semibold text-lg text-foreground">{p.name}</h3>
-                                    <span className="text-xs text-foreground-secondary">
-                                        {p.id === 'windows' ? '.exe installer' : p.id === 'mac' ? '.dmg + .zip' : '.AppImage + .zip'}
-                                    </span>
-                                </div>
-
-                                {selectedPlatform === p.id && downloading ? (
-                                    <div className="mt-2 w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                    <div className={`mt-2 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${p.id !== 'linux' ? 'bg-orange-500/10 text-orange-400' : 'bg-foreground/5 text-foreground-secondary'}`}>
-                                        {p.id !== 'linux' ? 'Building' : 'Download'}
-                                    </div>
-                                )}
-                            </motion.button>
-                        ))}
-                    </div>
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                        Beta Access Coming Soon
+                    </h1>
+                    <p className="text-lg text-foreground-secondary mb-10 leading-relaxed">
+                        The OxonAI IDE is currently in private beta development.
+                        <br className="hidden sm:block" />
+                        We are working hard to bring you the future of AI-powered coding.
+                    </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <motion.button
-                            onClick={() => router.push("/dashboard")}
-                            className="px-6 py-2.5 bg-background-tertiary hover:bg-border text-foreground rounded-full text-sm font-medium border border-border transition-colors"
-                        >
-                            Go to Dashboard
-                        </motion.button>
-                        <motion.button
                             onClick={() => router.push("/")}
-                            className="text-sm text-foreground-secondary hover:text-foreground transition-colors"
+                            className="group flex items-center gap-2 px-6 py-3 bg-foreground text-background font-medium rounded-full hover:bg-foreground/90 transition-all"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                         >
+                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                             Back to Home
+                        </motion.button>
+
+                        <motion.button
+                            onClick={() => router.push("/#services")}
+                            className="px-6 py-3 bg-transparent border border-border text-foreground font-medium rounded-full hover:bg-background-tertiary transition-colors"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            View Services
                         </motion.button>
                     </div>
                 </div>

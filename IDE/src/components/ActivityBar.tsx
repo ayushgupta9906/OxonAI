@@ -1,4 +1,4 @@
-import { FolderOpen, Search, Sparkles, Settings, MessageSquare, Bookmark, GitBranch, Package, Terminal as TermIcon } from 'lucide-react';
+import { FolderOpen, Search, Sparkles, Settings, MessageSquare, Bookmark, GitBranch, Package, Terminal as TermIcon, Bot } from 'lucide-react';
 
 interface ActivityBarProps {
     activePanel: string;
@@ -14,6 +14,7 @@ const topPanels = [
     { id: 'search', icon: Search, label: 'Search' },
     { id: 'git', icon: GitBranch, label: 'Source Control' },
     { id: 'ai', icon: Sparkles, label: 'AI Tools' },
+    { id: 'agent', icon: Bot, label: 'Agent - Generate Project' },
     { id: 'chat', icon: MessageSquare, label: 'AI Chat' },
     { id: 'templates', icon: Bookmark, label: 'Templates' },
     { id: 'extensions', icon: Package, label: 'Extensions' },

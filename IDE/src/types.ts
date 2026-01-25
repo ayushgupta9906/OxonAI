@@ -74,6 +74,11 @@ export interface ElectronAPI {
     getRecentFiles: () => Promise<string[]>;
     addRecentFile: (path: string) => Promise<{ success: boolean }>;
 
+    // Agent - Project Generation
+    agentGenerateProject: (options: { prompt: string; model?: string }) => Promise<{ success: boolean; projectPath?: string; taskId?: string; error?: string }>;
+    agentGetProjects: () => Promise<{ name: string; path: string; createdAt: Date }[]>;
+    onAgentEvent: (callback: (event: AgentEvent) => void) => () => void;
+
     // OAuth Login
     oauthLogin: () => Promise<{ success: boolean }>;
     exchangeAuthCode: (code: string) => Promise<{ success: boolean; user?: any; error?: string }>;
@@ -199,6 +204,12 @@ export interface GitFile {
     path: string;
     index: string;
     working_dir: string;
+}
+
+export interface AgentEvent {
+    type: 'thought' | 'tool_call' | 'tool_result' | 'error' | 'progress' | 'complete';
+    data: any;
+    timestamp: number;
 }
 
 declare global {

@@ -77,6 +77,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getRecentFiles: () => ipcRenderer.invoke('get-recent-files'),
     addRecentFile: (path) => ipcRenderer.invoke('add-recent-file', path),
 
+    // Agent - Project Generation
+    agentGenerateProject: (options) => ipcRenderer.invoke('agent:generate-project', options),
+    agentGetProjects: () => ipcRenderer.invoke('agent:get-projects'),
+    onAgentEvent: (callback) => ipcRenderer.on('agent:event', (_, data) => callback(data)),
+
     // OAuth Login
     oauthLogin: () => ipcRenderer.invoke('oauth-login'),
     exchangeAuthCode: (code) => ipcRenderer.invoke('exchange-auth-code', code),

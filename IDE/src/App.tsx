@@ -25,14 +25,17 @@ import Ideas from './components/tools/Ideas';
 import Summarize from './components/tools/Summarize';
 import Rewrite from './components/tools/Rewrite';
 
+// Agent
+import ProjectGenerator from './components/agentic/ProjectGenerator';
+
 // Editor
 import CodeEditor from './components/CodeEditor';
 import WelcomeTab from './components/WelcomeTab';
 
 import type { Template } from './types';
 
-type Panel = 'explorer' | 'search' | 'ai' | 'chat' | 'templates' | 'settings' | 'git' | 'extensions';
-type View = 'welcome' | 'editor' | 'chat' | 'content' | 'code' | 'ideas' | 'summarize' | 'rewrite' | 'settings';
+type Panel = 'explorer' | 'search' | 'ai' | 'chat' | 'templates' | 'settings' | 'git' | 'extensions' | 'agent';
+type View = 'welcome' | 'editor' | 'chat' | 'content' | 'code' | 'ideas' | 'summarize' | 'rewrite' | 'settings' | 'agent';
 
 function App() {
     const [activePanel, setActivePanel] = useState<Panel>('explorer');
@@ -124,6 +127,8 @@ function App() {
         setActivePanel(panel as Panel);
         if (panel === 'settings') {
             setActiveView('settings');
+        } else if (panel === 'agent') {
+            setActiveView('agent');
         }
     };
 
@@ -229,6 +234,7 @@ function App() {
             case 'ideas': return <Ideas {...props} provider={props.provider as any} />;
             case 'summarize': return <Summarize {...props} provider={props.provider as any} />;
             case 'rewrite': return <Rewrite {...props} provider={props.provider as any} />;
+            case 'agent': return <ProjectGenerator />;
             default:
                 return <WelcomeTab onOpenFolder={() => { }} onOpenFile={() => { }} onNavigate={handleNavigate} />;
         }

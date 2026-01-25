@@ -149,12 +149,12 @@ export default function Navbar() {
                                 </div>
 
                                 <motion.a
-                                    href="/pricing"
+                                    href="/#services"
                                     className="hidden lg:block px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white font-medium rounded-full transition-all duration-200 shadow-lg hover:shadow-xl text-sm"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.98 }}
                                 >
-                                    Get Started
+                                    Explore Services
                                 </motion.a>
                             </>
                         )}
