@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { ArrowRight, Mail, Lock, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
     return (
@@ -19,8 +20,9 @@ export default function LoginPage() {
 }
 
 function LoginContent() {
+    const [step, setStep] = useState<'email' | 'otp'>('email');
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [otp, setOtp] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -30,13 +32,39 @@ function LoginContent() {
 
     useEffect(() => {
         if (authError === "OAuthSignin") {
-            setError("Google sign in failed. Please try again or use email/password.");
+            setError("Google sign in failed. Please try again.");
         } else if (authError) {
             setError(`Authentication error: ${authError}`);
         }
     }, [authError]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSendOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+
+        try {
+            const res = await fetch('/api/auth/otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Failed to send OTP');
+            }
+
+            setStep('otp');
+        } catch (err: any) {
+            setError(err.message || "Failed to send OTP. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError("");
@@ -44,7 +72,7 @@ function LoginContent() {
         try {
             const result = await signIn("credentials", {
                 email,
-                password,
+                otp,
                 redirect: false,
             });
 
@@ -54,7 +82,7 @@ function LoginContent() {
                 router.push(callbackUrl);
             }
         } catch (err) {
-            setError("An error occurred. Please try again.");
+            setError("An error occurred during verification.");
         } finally {
             setLoading(false);
         }
@@ -71,23 +99,26 @@ function LoginContent() {
     };
 
     return (
-        <main className="min-h-screen flex items-center justify-center px-6 py-24 text-white">
+        <main className="min-h-screen flex items-center justify-center px-6 py-24 relative overflow-hidden">
+            {/* Background elements */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-3xl -z-10" />
+
             <motion.div
                 className="w-full max-w-md"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                {/* Header */}
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold mb-2">Welcome Back</h1>
+                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                        Welcome to OxonAI
+                    </h1>
                     <p className="text-gray-400">
-                        Sign in to continue to OxonAI
+                        {step === 'email' ? 'Sign in or create an account' : `Enter the code sent to ${email}`}
                     </p>
                 </div>
 
-                {/* Login Form */}
-                <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-8 shadow-2xl">
+                <div className="bg-background-secondary/80 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
                     {error && (
                         <motion.div
                             className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm"
@@ -98,54 +129,83 @@ function LoginContent() {
                         </motion.div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <div>
-                            <label className="block text-sm font-medium mb-2 text-gray-300">Email</label>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all text-white placeholder-gray-500"
-                                placeholder="you@example.com"
-                                required
-                            />
-                        </div>
+                    {step === 'email' ? (
+                        <form onSubmit={handleSendOtp} className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-medium mb-2 text-gray-300">Email Address</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all text-white placeholder-gray-500"
+                                        placeholder="you@example.com"
+                                        required
+                                        autoFocus
+                                    />
+                                </div>
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-2 text-gray-300">Password</label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all text-white placeholder-gray-500"
-                                placeholder="••••••••"
-                                required
-                            />
-                        </div>
+                            <motion.button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight className="w-4 h-4" /></>}
+                            </motion.button>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleVerifyOtp} className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-medium mb-2 text-gray-300">Verification Code</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                    <input
+                                        type="text"
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all text-white placeholder-gray-500 tracking-widest text-lg font-mono"
+                                        placeholder="123456"
+                                        required
+                                        autoFocus
+                                        maxLength={6}
+                                    />
+                                </div>
+                            </div>
 
-                        <motion.button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-purple-500/20"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            {loading ? "Signing in..." : "Sign In"}
-                        </motion.button>
-                    </form>
+                            <motion.button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                {loading ? "Verifying..." : "Verify & Sign In"}
+                            </motion.button>
 
-                    {/* Divider */}
+                            <button
+                                type="button"
+                                onClick={() => setStep('email')}
+                                className="w-full text-center text-sm text-gray-400 hover:text-white transition-colors"
+                            >
+                                ← Change Email
+                            </button>
+                        </form>
+                    )}
+
                     <div className="flex items-center my-6">
-                        <div className="flex-1 border-t border-gray-700"></div>
+                        <div className="flex-1 border-t border-white/10"></div>
                         <span className="px-4 text-gray-500 text-sm">or</span>
-                        <div className="flex-1 border-t border-gray-700"></div>
+                        <div className="flex-1 border-t border-white/10"></div>
                     </div>
 
-                    {/* Google Sign In */}
                     <motion.button
                         onClick={handleGoogleSignIn}
                         disabled={loading}
-                        className="w-full py-3 bg-gray-700/50 hover:bg-gray-700 border border-gray-600 text-white font-medium rounded-xl flex items-center justify-center gap-3 transition-all disabled:opacity-50"
+                        className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-xl flex items-center justify-center gap-3 transition-all disabled:opacity-50"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                     >
@@ -169,17 +229,6 @@ function LoginContent() {
                         </svg>
                         Continue with Google
                     </motion.button>
-
-                    {/* Register Link */}
-                    <p className="text-center text-foreground-secondary mt-6">
-                        Don&apos;t have an account?{" "}
-                        <Link
-                            href="/register"
-                            className="text-purple-500 hover:text-purple-400 font-medium"
-                        >
-                            Sign up
-                        </Link>
-                    </p>
                 </div>
             </motion.div>
         </main>

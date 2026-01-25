@@ -20,10 +20,60 @@ export const authOptions: NextAuthOptions = {
             credentials: {
                 email: { label: 'Email', type: 'email' },
                 password: { label: 'Password', type: 'password' },
+                otp: { label: 'OTP', type: 'text' }
             },
             async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) {
-                    throw new Error('Please enter email and password');
+                if (!credentials?.email) {
+                    throw new Error('Email is required');
+                }
+
+                // OTP Login Flow
+                if (credentials.otp) {
+                    const validToken = await prisma.verificationToken.findFirst({
+                        where: {
+                            identifier: credentials.email,
+                            token: credentials.otp,
+                            expires: { gt: new Date() }
+                        }
+                    });
+
+                    if (!validToken) {
+                        throw new Error('Invalid or expired OTP');
+                    }
+
+                    // Delete token after use
+                    await prisma.verificationToken.delete({
+                        where: { id: validToken.id }
+                    });
+
+                    // Find or Create User
+                    let user = await prisma.user.findUnique({
+                        where: { email: credentials.email },
+                    });
+
+                    if (!user) {
+                        user = await prisma.user.create({
+                            data: {
+                                email: credentials.email,
+                                name: credentials.email.split('@')[0],
+                                emailVerified: new Date(),
+                                role: 'USER',
+                                plan: 'FREE',
+                            }
+                        });
+                    }
+
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        name: user.name,
+                        image: user.image,
+                    };
+                }
+
+                // Password Login Flow (Legacy)
+                if (!credentials?.password) {
+                    throw new Error('Please enter password or OTP');
                 }
 
                 const user = await prisma.user.findUnique({

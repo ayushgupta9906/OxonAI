@@ -12,6 +12,8 @@
         "install:all": "npm install && concurrently \"cd OxonAI && npm install\" \"cd IDE && npm install\""
     },
     "dependencies": {
-        "concurrently": "^8.2.2"
+        "concurrently": "^8.2.2",
+        "dotenv": "^17.2.3",
+        "nodemailer": "^7.0.12"
     }
 }
