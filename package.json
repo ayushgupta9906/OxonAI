@@ -9,6 +9,7 @@
         "dev:web": "cd OxonAI && npm run dev",
         "dev:ide": "cd IDE && npm run dev",
         "dev": "concurrently \"npm run dev:web\" \"npm run dev:ide\"",
+        "build": "cd OxonAI && npm run build",
         "install:all": "npm install && concurrently \"cd OxonAI && npm install\" \"cd IDE && npm install\""
     },
     "dependencies": {
