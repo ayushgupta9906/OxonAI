@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Sparkles, Zap, Code, Download } from 'lucide-react';
 import { ServicesSection } from '../components/ServicesSection';
+import { ProjectsSection } from '../components/ProjectsSection';
 import { ContactSection } from '../components/ContactSection';
 
 export default function HomePage() {
@@ -66,6 +67,9 @@ export default function HomePage() {
 
             {/* Services Section */}
             <ServicesSection />
+
+            {/* Past Projects / Portfolio Section */}
+            <ProjectsSection />
 
             {/* Contact Section */}
             <ContactSection />
