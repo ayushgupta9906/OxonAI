@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { ArrowRight, Sparkles, Zap, Code, Download } from 'lucide-react';
 import { ServicesSection } from '../components/ServicesSection';
 import { ProjectsSection } from '../components/ProjectsSection';
+import { TechStackSection } from '../components/TechStackSection';
+import { StatsSection } from '../components/StatsSection';
 import { ContactSection } from '../components/ContactSection';
 
 export default function HomePage() {
@@ -65,11 +67,17 @@ export default function HomePage() {
                 </div>
             </div>
 
+            {/* Stats / Achievements Section */}
+            <StatsSection />
+
             {/* Services Section */}
             <ServicesSection />
 
             {/* Past Projects / Portfolio Section */}
             <ProjectsSection />
+
+            {/* Tech Stack Section */}
+            <TechStackSection />
 
             {/* Contact Section */}
             <ContactSection />
